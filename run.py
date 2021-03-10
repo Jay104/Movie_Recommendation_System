@@ -1,15 +1,35 @@
 from fileHandling import *
-from basicUBCF import *
-from pearsonUBCF import *
+from basicUBCF import performUBCF
+from pearsonUBCF import performPearson
+from basicIBCF import performIBCF
+import math
 
 
-whichMethod = input("Which method would you like to use? (pick a number):\n1. basicUBCF\n2. pearsonUBCF\n")
-whichFile = input("Which file to you want to test on? (pick a number):\n1. test5.txt\n2. test10.txt\n3. test20.txt\n")
+print("Which recommendation method would you like to use? (Pick a number):")
+print("1. User-Based Collaborative Filtering w/ Cosine Similarity")
+print("2. User-Based Collaborative Filtering w/ Pearson Correlation")
+print("3. Item-Based Collaborative Filtering w/ Adjusted Cosine Similarity")
+whichMethod = input()
+
+print("Which file would you like to test on? (Pick a number):")
+print("1. test5.txt")
+print("2. test10.txt")
+print("3. test20.txt")
+whichFile = input()
     
+whichImprov = '0'
 if whichMethod == '1':
-    print("Using basicUBCF")
+    print("Using UBCF w/ Cosine Similarity")
+elif whichMethod == '2':
+    print("Using UBCF w/ Pearson Correlation")
+    print("Do you want to make other improvements for prediction? (Pick a number):")
+    print("1. Both Inverse User Frequency and Case Amplification")
+    print("2. Only Inverse User Frequency")
+    print("3. Only Case Amplification")
+    print("4. None")
+    whichImprov = input()
 else:
-    print("Using pearsonUBCF")
+    print("Using IBCF w/ Adjusted Cosine Similarity")
 
 if whichFile == '1':
     filename = "test5.txt"
@@ -30,14 +50,18 @@ trainData = readData("train.txt")
 # Get the test dataset
 testData = readData(filename)
 
-# Variables to set up loop
-start = 0
-end = 0
-userID = testData[start][0]
-i = 0
-size = len(testData)
-allPredictions = []
+if whichMethod == '1':
+    predictions = performUBCF(trainData, testData)
+elif whichMethod == '2':
+    predictions = performPearson(trainData, testData, whichImprov)
+elif whichMethod == '3':
+    predictions = performIBCF(trainData, testData)
 
+#print(predictions)
+writeToFile(predictions, filename)
+
+
+'''
 # Calculate average ratings of inactive users
 averages = []
 for user in trainData:
@@ -50,6 +74,14 @@ for user in trainData:
     average /= count
     average += 0.001    # Form of add-one smoothing
     averages.append(average)
+    
+# Variables to set up loop
+start = 0
+end = 0
+userID = testData[start][0]
+i = 0
+size = len(testData)
+allPredictions = []
 
 # Begin to iterate through the training data
 while start < size:
@@ -62,27 +94,12 @@ while start < size:
     # Create slice of data to pass to function
     section = slice(start, end)
     
-    if whichMethod == 1:
-        weights, itemsToPredict = trainBasicWeights(trainData, testData[section])
-        
-        # Sort list such that the highest weights (biggest similarity) are first
-        weights.sort(reverse=True)
-        predictions = predictBasicUBCF(userID,
-                                       trainData,
-                                       weights,
-                                       itemsToPredict)
-    
-    else:
-        weights, itemsToPredict, userAvg = trainPearsonWeights(trainData, testData[section], averages)
-
-        # Sort list such that the highest weights (biggest similarity) are first
-        weights.sort(reverse=True)
-        predictions = predictPearsonUBCF(userID,
-                                         trainData,
-                                         weights,
-                                         itemsToPredict,
-                                         userAvg,
-                                         averages)
+    if whichMethod == '1':
+        predictions = performUBCF(trainData, testData[section], userID)
+    elif whichMethod == '2':
+        predictions = performPearson(trainData, testData[section], userID, averages, IUFvals, whichImprov)
+    elif whichMethod == '3':
+        predictions = performIBCF(trainData, testData[section], userID, averages)
 
     # Get the next userID
     if (i < size):
@@ -90,8 +107,6 @@ while start < size:
     start = end
     allPredictions += predictions
 
-
 # Save predictions in a file
 writeToFile(allPredictions, resultFilename)
-
-
+'''

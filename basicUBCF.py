@@ -1,8 +1,29 @@
 import math
 from calcFunctions import *
 
+def performUBCF(trainData, testData):
+    start = 0
+    end = 0
+    userID = testData[start][0]
+    i = 0
+    size = len(testData)
+    allPredictions = []
+    while start < size:
+        while (i < size) and (userID == testData[i][0]):
+            i += 1
+        end = i
+        section = slice(start, end)
+        weights, itemsToPredict = trainWeights(trainData, testData[section])
+        weights.sort(reverse=True)
+        predictions = predict(userID, trainData, weights, itemsToPredict)
+        if i < size:
+            userID = testData[i][0]
+        start = end
+        allPredictions += predictions
+
+    return allPredictions
 # --------------------
-#   function: predictBasicUBCF
+#   function: predict
 #       input(s):
 #           - userID (type - int): ID of the current user
 #           - data (type -  int[n][m]): n x m array where n = # of users and m = # of items
@@ -16,7 +37,7 @@ from calcFunctions import *
 #               - Column 2: item ID
 #               - Column 3: rating prediction
 # --------------------
-def predictBasicUBCF(userID, data, weights, itemsToPredict):
+def predict(userID, data, weights, itemsToPredict):
     numerator = 0.0
     denominator = 0.0
     predictions = []
@@ -49,7 +70,7 @@ def predictBasicUBCF(userID, data, weights, itemsToPredict):
 #           - weights (type - int[2][m]): 2 x m array where m = # of users
 #           - itemsToPredict (type - int[n]): size n array where n = # of items to predict
 # --------------------
-def trainBasicWeights(data, activeUserData):
+def trainWeights(data, activeUserData):
 
     # List of items the active user as rated
     userItemList = [elt[1] for elt in activeUserData if elt[2] != 0]
@@ -59,6 +80,10 @@ def trainBasicWeights(data, activeUserData):
     
     # List of items to predict
     itemsToPredict = [elt[1] for elt in activeUserData if elt[2] == 0]
+    
+    #print(activeUserData)
+    #print("--------")
+    
     
     weights = []
     num = 0

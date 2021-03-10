@@ -14,7 +14,6 @@ def readData(filename):
     
     # Open file
     with open(my_file, "r") as fp:
-    
         # For each line in the file
         for line in fp:
             
@@ -26,6 +25,7 @@ def readData(filename):
             for elt in stringData:
                 intData.append(int(elt))
             data.append(intData)
+            
     return data
 
 # -------------------------
