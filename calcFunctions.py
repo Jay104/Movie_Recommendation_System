@@ -24,3 +24,16 @@ def cosSimilarity(v1, v2):
     
     return numerator / denominator
 
+def calcAverages(data):
+    averages = []
+    for user in data:
+        average = 0.0
+        count = 0
+        for elt in user:
+            if elt != 0:
+                average += elt
+                count += 1
+        average /= count
+        average += 0.001    # Form of add-one smoothing
+        averages.append(average)
+    return averages

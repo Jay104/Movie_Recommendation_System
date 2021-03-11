@@ -49,9 +49,6 @@ def trainWeights(itemID, trainData, activeUserData, averages):
     for itemCount, item in enumerate(userItemList):
         iRatings = []
         jRatings = []
-        
-        
-        
         for userCount, user in enumerate(trainData):
             if user[item - 1] != 0 and user[itemID - 1] != 0:
                 iRatings.append(user[itemID - 1] - averages[userCount])

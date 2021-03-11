@@ -1,21 +1,46 @@
 import math
 from calcFunctions import *
 
+# --------------------
+#   function: performUBCF
+#       input(s):
+#           - trainData (type - int[n][m]): n x m array where n = # of users and m = # of items
+#           - testData (type - int[n][3]): n x 3 array
+#               - Column 1: User IDs
+#               - Column 2: Item IDs
+#               - Column 3: Rating of the item by an active user
+#       output(s):
+#           - allPredictions (type - int[n][3]): n x 3 array
+#               - Column 1: User IDs
+#               - Column 2: Item IDs
+#               - Column 3: Rating predicted of an item by an active user
+# --------------------
 def performUBCF(trainData, testData):
+
+    # Variables to set up the loop
     start = 0
     end = 0
     userID = testData[start][0]
     i = 0
     size = len(testData)
     allPredictions = []
+    
     while start < size:
+    
+        # Find the section of the test data for a particular userID
         while (i < size) and (userID == testData[i][0]):
             i += 1
         end = i
         section = slice(start, end)
+        
+        # Train weights
         weights, itemsToPredict = trainWeights(trainData, testData[section])
+        
+        # Sort such that the most similar weights are on top
         weights.sort(reverse=True)
         predictions = predict(userID, trainData, weights, itemsToPredict)
+        
+        # Get next userID
         if i < size:
             userID = testData[i][0]
         start = end
@@ -27,7 +52,7 @@ def performUBCF(trainData, testData):
 #       input(s):
 #           - userID (type - int): ID of the current user
 #           - data (type -  int[n][m]): n x m array where n = # of users and m = # of items
-#           - weights (type - int[2][m]): n x m array where m = # of similar users
+#           - weights (type - int[m][2]): m x 2 array where m = # of similar users
 #               - Column 1: Weight values
 #               - Column 2: userIDs
 #           - itemsToPredict (type - int[n]): size n array where n = # of items to predict
@@ -80,10 +105,6 @@ def trainWeights(data, activeUserData):
     
     # List of items to predict
     itemsToPredict = [elt[1] for elt in activeUserData if elt[2] == 0]
-    
-    #print(activeUserData)
-    #print("--------")
-    
     
     weights = []
     num = 0
