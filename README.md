@@ -1,4 +1,11 @@
-# Web Information Management Movie Recommendation System
+# Movie Recommendation System
+ 
+ This is an end-of-term project for a course on Web Information Management.
+ This trains and tests on a small portion of data from Netflix's million dollar question.
+ Algorithms used include:
+ - User-Based Collaborative Filtering
+ - Item-Based Collaborative Filtering
+ - Pearson Correlation
  
  How to Run My Code
  1. Decompress the File
